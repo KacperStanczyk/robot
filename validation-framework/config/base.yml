@@ -1,0 +1,7 @@
+mode: MOCK
+timeouts:
+  default_signal_wait: 5.0
+  precondition_grace: 2.0
+logging:
+  level: INFO
+  file: null

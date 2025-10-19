@@ -1,0 +1,530 @@
+signals:
+  VehicleIgnitionStatus:
+    bus: PowerCAN
+    can_id: 0x110
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ACC: 1
+        RUN: 2
+  VehicleOperatingMode:
+    bus: PowerCAN
+    can_id: 0x111
+    payload:
+      type: enum
+      mapping:
+        STANDBY: 0
+        IN_USE: 1
+        DRIVING: 2
+        CHARGING: 3
+        HVAC_BASE: 4
+        LIGHTING_BASE: 5
+  EPBCommand:
+    bus: BrakeCAN
+    can_id: 0x112
+    payload:
+      type: enum
+      mapping:
+        RELEASE: 0
+        APPLY: 1
+  EPBStatus:
+    bus: BrakeCAN
+    can_id: 0x113
+    payload:
+      type: enum
+      mapping:
+        RELEASED: 0
+        APPLIED: 1
+  GearCommand:
+    bus: PowerCAN
+    can_id: 0x114
+    payload:
+      type: enum
+      mapping:
+        P: 0
+        R: 1
+        N: 2
+        D: 3
+  GearPosition:
+    bus: PowerCAN
+    can_id: 0x115
+    payload:
+      type: enum
+      mapping:
+        P: 0
+        R: 1
+        N: 2
+        D: 3
+  VehicleSpeedTarget:
+    bus: PowerCAN
+    can_id: 0x116
+    payload:
+      type: uint
+  VehicleSpeed:
+    bus: PowerCAN
+    can_id: 0x117
+    payload:
+      type: uint
+  SecurementState:
+    bus: BodyCAN
+    can_id: 0x118
+    payload:
+      type: enum
+      mapping:
+        PARKED: 0
+        DRIVE_READY: 1
+        SECURED: 2
+  BackendCommandRequest:
+    bus: TelematicsCAN
+    can_id: 0x119
+    payload:
+      type: enum
+      mapping:
+        REMOTE_LOCK: 0
+        REMOTE_UNLOCK: 1
+        LOG_UPLOAD: 2
+        HEALTH_PING: 3
+  BackendCommandAck:
+    bus: TelematicsCAN
+    can_id: 0x11A
+    payload:
+      type: enum
+      mapping:
+        PENDING: 0
+        ACKED: 1
+        REJECTED: 2
+  BusFaultStatus:
+    bus: DiagnosticsCAN
+    can_id: 0x11B
+    payload:
+      type: enum
+      mapping:
+        OK: 0
+        FAULT: 1
+  SomeIpFaultStatus:
+    bus: DiagnosticsCAN
+    can_id: 0x11C
+    payload:
+      type: enum
+      mapping:
+        OK: 0
+        FAULT: 1
+  ActiveDtcCount:
+    bus: DiagnosticsCAN
+    can_id: 0x11D
+    payload:
+      type: uint
+  ECallScenario:
+    bus: TelematicsCAN
+    can_id: 0x11E
+    payload:
+      type: enum
+      mapping:
+        INACTIVE: 0
+        ACTIVE: 1
+  EmergencyLedStatus:
+    bus: ClusterCAN
+    can_id: 0x11F
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        GREEN_BLINK: 1
+        RED_SOLID: 2
+  PsapSessionStatus:
+    bus: TelematicsCAN
+    can_id: 0x120
+    payload:
+      type: enum
+      mapping:
+        DISCONNECTED: 0
+        CONNECTED: 1
+  HMICommand:
+    bus: HPC_SOMEIP
+    can_id: 0x121
+    payload:
+      type: enum
+      mapping:
+        SOS: 0
+        HOME: 1
+        NAVIGATION: 2
+        SETTINGS: 3
+        BACK: 4
+  HMINavigationState:
+    bus: HPC_SOMEIP
+    can_id: 0x122
+    payload:
+      type: enum
+      mapping:
+        HOME: 0
+        SETTINGS_LIGHTS: 1
+        MEDIA: 2
+        PHONE: 3
+  HMIActiveApp:
+    bus: HPC_SOMEIP
+    can_id: 0x123
+    payload:
+      type: enum
+      mapping:
+        HOME: 0
+        NAVIGATION: 1
+        MEDIA: 2
+        PHONE: 3
+  HMISelection:
+    bus: HPC_SOMEIP
+    can_id: 0x124
+    payload:
+      type: enum
+      mapping:
+        SETTINGS_LIGHTS: 0
+        SETTINGS_HVAC: 1
+        PROFILE_DRIVER: 2
+  ClusterTelltaleBrake:
+    bus: ClusterCAN
+    can_id: 0x125
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+  ClusterTelltaleHighBeam:
+    bus: ClusterCAN
+    can_id: 0x126
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+  ClusterTelltaleEmergency:
+    bus: ClusterCAN
+    can_id: 0x127
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+  LowBeamCommand:
+    bus: LightingCAN
+    can_id: 0x128
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+        AUTO: 2
+  LowBeamState:
+    bus: LightingCAN
+    can_id: 0x129
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+        AUTO: 2
+  HighBeamCommand:
+    bus: LightingCAN
+    can_id: 0x12A
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+        FLASH: 2
+  HighBeamState:
+    bus: LightingCAN
+    can_id: 0x12B
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+        FLASH: 2
+  LightAvailabilityHighBeam:
+    bus: LightingCAN
+    can_id: 0x12C
+    payload:
+      type: enum
+      mapping:
+        AVAILABLE: 0
+        NOT_AVAILABLE: 1
+  LightAvailabilityLowBeam:
+    bus: LightingCAN
+    can_id: 0x12D
+    payload:
+      type: enum
+      mapping:
+        AVAILABLE: 0
+        NOT_AVAILABLE: 1
+  DoorFLState:
+    bus: BodyCAN
+    can_id: 0x12E
+    payload:
+      type: enum
+      mapping:
+        CLOSED: 0
+        OPEN: 1
+        AJAR: 2
+  DoorFRState:
+    bus: BodyCAN
+    can_id: 0x12F
+    payload:
+      type: enum
+      mapping:
+        CLOSED: 0
+        OPEN: 1
+        AJAR: 2
+  DoorRLState:
+    bus: BodyCAN
+    can_id: 0x130
+    payload:
+      type: enum
+      mapping:
+        CLOSED: 0
+        OPEN: 1
+        AJAR: 2
+  DoorRRState:
+    bus: BodyCAN
+    can_id: 0x131
+    payload:
+      type: enum
+      mapping:
+        CLOSED: 0
+        OPEN: 1
+        AJAR: 2
+  SeatbeltDRIVERState:
+    bus: BodyCAN
+    can_id: 0x132
+    payload:
+      type: enum
+      mapping:
+        BUCKLED: 0
+        UNBUCKLED: 1
+  SeatbeltPASSENGERState:
+    bus: BodyCAN
+    can_id: 0x133
+    payload:
+      type: enum
+      mapping:
+        BUCKLED: 0
+        UNBUCKLED: 1
+  WindowFLCommand:
+    bus: BodyCAN
+    can_id: 0x134
+    payload:
+      type: enum
+      mapping:
+        UP: 0
+        DOWN: 1
+        STOP: 2
+  WindowFRCommand:
+    bus: BodyCAN
+    can_id: 0x135
+    payload:
+      type: enum
+      mapping:
+        UP: 0
+        DOWN: 1
+        STOP: 2
+  WindowFLPosition:
+    bus: BodyCAN
+    can_id: 0x136
+    payload:
+      type: enum
+      mapping:
+        CLOSED: 0
+        OPEN: 1
+        MID: 2
+  WindowFRPosition:
+    bus: BodyCAN
+    can_id: 0x137
+    payload:
+      type: enum
+      mapping:
+        CLOSED: 0
+        OPEN: 1
+        MID: 2
+  HVACTemperature:
+    bus: HVACCAN
+    can_id: 0x138
+    payload:
+      type: uint
+  HVACMode:
+    bus: HVACCAN
+    can_id: 0x139
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        AUTO: 1
+        MANUAL: 2
+  HVACDemistCommand:
+    bus: HVACCAN
+    can_id: 0x13A
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+  DefrostStatus:
+    bus: HVACCAN
+    can_id: 0x13B
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+  ADASpeedSetpoint:
+    bus: ADAS_CAN
+    can_id: 0x13C
+    payload:
+      type: uint
+  ADASObstacleDistance:
+    bus: ADAS_CAN
+    can_id: 0x13D
+    payload:
+      type: uint
+  WPPControlRequest:
+    bus: ADAS_CAN
+    can_id: 0x13E
+    payload:
+      type: enum
+      mapping:
+        IDLE: 0
+        BRAKE_REQ: 1
+        EMERGENCY_STOP: 2
+  ChargingState:
+    bus: PowerCAN
+    can_id: 0x13F
+    payload:
+      type: enum
+      mapping:
+        DISCONNECTED: 0
+        CONNECTED: 1
+  ChargingActivity:
+    bus: PowerCAN
+    can_id: 0x140
+    payload:
+      type: enum
+      mapping:
+        INACTIVE: 0
+        ACTIVE: 1
+  BrakePedalStatus:
+    bus: BrakeCAN
+    can_id: 0x141
+    payload:
+      type: enum
+      mapping:
+        RELEASED: 0
+        PRESSED: 1
+  VehicleLockState:
+    bus: BodyCAN
+    can_id: 0x142
+    payload:
+      type: enum
+      mapping:
+        UNLOCKED: 0
+        LOCKED: 1
+  LuggageState:
+    bus: BodyCAN
+    can_id: 0x143
+    payload:
+      type: enum
+      mapping:
+        CLOSED: 0
+        OPEN: 1
+  SpeedLimiterStatus:
+    bus: PowerCAN
+    can_id: 0x144
+    payload:
+      type: enum
+      mapping:
+        DISABLED: 0
+        ENABLED: 1
+  SpeedLimiterValue:
+    bus: PowerCAN
+    can_id: 0x145
+    payload:
+      type: uint
+  WiperWasherCommand:
+    bus: BodyCAN
+    can_id: 0x146
+    payload:
+      type: enum
+      mapping:
+        IDLE: 0
+        SPRAY: 1
+  EcuHeartbeat:
+    bus: DiagnosticsCAN
+    can_id: 0x147
+    payload:
+      type: enum
+      mapping:
+        BCM: 0
+        HPC: 1
+        ADAS: 2
+        TCU: 3
+  'WIRED::HOODLATCH1_FULLCLOSESTS':
+    bus: BodyCAN
+    can_id: 0x148
+    payload:
+      type: uint
+  'SOMEIP::PSOMEIP_ZCU_CL_HIGHBEAM':
+    bus: HPC_SOMEIP
+    can_id: 0x149
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+  'SOMEIP::PSOMEIP_ZCU_CL_BRAKE':
+    bus: HPC_SOMEIP
+    can_id: 0x14A
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        ON: 1
+  ADASCRUISEState:
+    bus: ADAS_CAN
+    can_id: 0x14B
+    payload:
+      type: enum
+      mapping:
+        DISABLED: 0
+        ENABLED: 1
+  ADASLANEKEEPState:
+    bus: ADAS_CAN
+    can_id: 0x14C
+    payload:
+      type: enum
+      mapping:
+        DISABLED: 0
+        ENABLED: 1
+  ADASPILOTState:
+    bus: ADAS_CAN
+    can_id: 0x14D
+    payload:
+      type: enum
+      mapping:
+        DISABLED: 0
+        ENABLED: 1
+  WiperRequest:
+    bus: BodyCAN
+    can_id: 0x150
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        INTERMITTENT: 1
+        LOW: 2
+        HIGH: 3
+        AUTO: 4
+  WiperMotorStatus:
+    bus: BodyCAN
+    can_id: 0x151
+    payload:
+      type: enum
+      mapping:
+        INACTIVE: 0
+        ACTIVE: 1

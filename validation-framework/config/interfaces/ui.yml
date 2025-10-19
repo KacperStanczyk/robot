@@ -1,0 +1,4 @@
+widgets:
+  start_button:
+    selector: "#start"
+    action: click
