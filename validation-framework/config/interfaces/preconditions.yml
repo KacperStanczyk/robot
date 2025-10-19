@@ -1,0 +1,19 @@
+preconditions:
+  VehicleAtRest:
+    description: "Ensure vehicle is stationary with ignition on"
+    sla:
+      timeout: 10
+      polling_interval: 1
+    safety:
+      abort_on_fault: true
+    steps:
+      - action: set_signal
+        target: IgnitionState
+        value: ON
+      - action: wait_for_signal
+        target: VehicleSpeed
+        value: 0
+    rollback:
+      - action: set_signal
+        target: IgnitionState
+        value: OFF

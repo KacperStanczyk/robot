@@ -1,0 +1,19 @@
+signals:
+  WiperRequest:
+    bus: BodyCAN
+    can_id: 0x100
+    payload:
+      type: enum
+      mapping:
+        OFF: 0
+        INTERMITTENT: 1
+        LOW: 2
+        HIGH: 3
+  WiperMotorStatus:
+    bus: BodyCAN
+    can_id: 0x101
+    payload:
+      type: enum
+      mapping:
+        INACTIVE: 0
+        ACTIVE: 1

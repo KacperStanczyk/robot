@@ -1,0 +1,6 @@
+mode: HIL
+interfaces:
+  can:
+    BodyCAN:
+      channel: can0
+      bitrate: 500000
