@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Optional
+from typing import Any, Iterable, Optional
 
 from ..config_loader.models import SignalCatalog, SignalDefinition
 from ..hal.exceptions import CanTimeoutError, HalError
@@ -63,10 +63,105 @@ class InteractionBroker:
             except HalError as exc:
                 raise EnvironmentFault(f"HAL failure while waiting for {signal_name}: {exc}") from exc
 
+            if message.can_id != signal_def.can_id:
+                self._logger.debug(
+                    "Ignoring CAN id %s while waiting for %s", message.can_id, signal_def.name
+                )
+                continue
+
             decoded = self._decode(signal_def, message)
             if decoded == expected_value:
                 self._logger.debug("%s satisfied with value %s", signal_name, decoded)
                 return
+
+    def get_signal(self, signal_name: str, timeout_s: float = 1.0) -> Any:
+        """Retrieve the latest value for ``signal_name`` within ``timeout_s`` seconds."""
+
+        signal_def = self._config.get(signal_name)
+        can_port = self._hal.get_can_port(signal_def.bus)
+        deadline = time.time() + timeout_s
+
+        while True:
+            remaining = max(deadline - time.time(), 0.0)
+            if remaining <= 0.0:
+                raise SutFault(f"Did not observe signal {signal_name} before timeout")
+            try:
+                message = can_port.receive(timeout_s=min(remaining, 0.1))
+            except CanTimeoutError:
+                continue
+            except HalError as exc:
+                raise EnvironmentFault(f"HAL failure while reading {signal_name}: {exc}") from exc
+
+            if message.can_id != signal_def.can_id:
+                self._logger.debug(
+                    "Ignoring CAN id %s while reading %s", message.can_id, signal_def.name
+                )
+                continue
+
+            value = self._decode(signal_def, message)
+            self._logger.debug("Read %s=%s", signal_name, value)
+            return value
+
+    def assert_signal_equal(self, signal_name: str, expected_value: Any, timeout_s: float = 1.0) -> None:
+        """Assert that ``signal_name`` eventually equals ``expected_value``."""
+
+        observed = self.get_signal(signal_name, timeout_s=timeout_s)
+        if observed != expected_value:
+            raise SutFault(
+                f"Signal {signal_name} expected {expected_value!r} but observed {observed!r}"
+            )
+
+    def assert_signal_in(
+        self, signal_name: str, expected_values: Iterable[Any], timeout_s: float = 1.0
+    ) -> None:
+        """Ensure that ``signal_name`` resolves to one of ``expected_values``."""
+
+        observed = self.get_signal(signal_name, timeout_s=timeout_s)
+        if observed not in expected_values:
+            formatted = ", ".join(repr(value) for value in expected_values)
+            raise SutFault(
+                f"Signal {signal_name} expected to be in {{{formatted}}} but was {observed!r}"
+            )
+
+    def assert_signal_in_range(
+        self,
+        signal_name: str,
+        minimum: float,
+        maximum: float,
+        timeout_s: float = 1.0,
+    ) -> None:
+        """Check that ``signal_name`` lies within ``minimum`` and ``maximum`` inclusive."""
+
+        observed = self.get_signal(signal_name, timeout_s=timeout_s)
+        if not (minimum <= float(observed) <= maximum):
+            raise SutFault(
+                f"Signal {signal_name} expected between {minimum} and {maximum} but was {observed!r}"
+            )
+
+    def assert_consistent_signals(
+        self, signal_names: Iterable[str], timeout_s: float = 1.0
+    ) -> None:
+        """Validate that all signals in ``signal_names`` converge to the same value."""
+
+        observed_values = {
+            name: self.get_signal(name, timeout_s=timeout_s) for name in signal_names
+        }
+        unique_values = set(observed_values.values())
+        if len(unique_values) > 1:
+            raise SutFault(
+                "Signals are inconsistent: "
+                + ", ".join(f"{name}={value!r}" for name, value in observed_values.items())
+            )
+
+    def assert_no_faults(self, fault_signal_names: Iterable[str], timeout_s: float = 1.0) -> None:
+        """Ensure that all provided fault indicator signals resolve to a healthy state."""
+
+        for name in fault_signal_names:
+            observed = self.get_signal(name, timeout_s=timeout_s)
+            if observed not in (0, "NONE", "INACTIVE", "OK"):
+                raise EnvironmentFault(
+                    f"Fault indicator {name} reported unhealthy state {observed!r}"
+                )
 
     def _encode(self, signal_def: SignalDefinition, value: Any) -> CanMessage:
         if signal_def.payload.type == "enum":

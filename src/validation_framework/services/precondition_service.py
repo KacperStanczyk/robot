@@ -21,9 +21,12 @@ class PreconditionService:
         self._catalog = catalog
         self._broker = broker
         self._logger = logger
-        self._actions: Dict[str, Callable[[str], None]] = {
+        self._actions: Dict[str, Callable[[str, object], None]] = {
             "set_signal": self._set_signal,
             "wait_for_signal": self._wait_for_signal,
+            "assert_signal": self._assert_signal,
+            "assert_signal_in": self._assert_signal_in,
+            "assert_signal_range": self._assert_signal_range,
         }
 
     def apply(self, name: str) -> None:
@@ -37,6 +40,9 @@ class PreconditionService:
             self._rollback(definition)
             raise EnvironmentFault(f"Precondition {name} failed: {exc}") from exc
 
+    def register_action(self, name: str, handler: Callable[[str, object], None]) -> None:
+        self._actions[name] = handler
+
     def _dispatch(self, action: str, target: str, value) -> None:
         if action not in self._actions:
             raise KeyError(f"Unsupported precondition action: {action}")
@@ -47,6 +53,23 @@ class PreconditionService:
 
     def _wait_for_signal(self, target: str, value) -> None:
         self._broker.wait_for_signal(target, value, timeout_s=5)
+
+    def _assert_signal(self, target: str, value) -> None:
+        self._broker.assert_signal_equal(target, value, timeout_s=5)
+
+    def _assert_signal_in(self, target: str, value) -> None:
+        expected_values = value if isinstance(value, (list, tuple, set)) else [value]
+        self._broker.assert_signal_in(target, expected_values, timeout_s=5)
+
+    def _assert_signal_range(self, target: str, value) -> None:
+        if not isinstance(value, dict) or "min" not in value or "max" not in value:
+            raise ValueError("assert_signal_range requires a mapping with 'min' and 'max'")
+        self._broker.assert_signal_in_range(
+            target,
+            float(value["min"]),
+            float(value["max"]),
+            timeout_s=5,
+        )
 
     def _rollback(self, definition: PreconditionDefinition) -> None:
         if not definition.rollback:

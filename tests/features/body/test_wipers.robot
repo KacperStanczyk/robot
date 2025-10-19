@@ -5,5 +5,9 @@ Library           validation_framework.keywords
 *** Test Cases ***
 Activate Wipers
     [Documentation]    Ensure the wipers activate when requested.
-    Set Vehicle State    VehicleAtRest
-    Activate Wipers     INTERMITTENT
+    PRECOND.Ensure Standby
+    WIPERS.Set Mode =    AUTO
+    WIPERS.Spray
+    VERIFY.Wipers State ==    ACTIVE
+    CAPTURE.Start    BodyCAN
+    CAPTURE.Stop     BodyCAN

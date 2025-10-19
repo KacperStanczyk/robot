@@ -1,4 +1,92 @@
 preconditions:
+  Standby:
+    description: "Vehicle in standby with ignition off"
+    steps:
+      - action: set_signal
+        target: VehicleIgnitionStatus
+        value: OFF
+      - action: set_signal
+        target: VehicleOperatingMode
+        value: STANDBY
+      - action: wait_for_signal
+        target: SecurementState
+        value: PARKED
+  InUse:
+    description: "Ignition run and securement released"
+    steps:
+      - action: set_signal
+        target: VehicleIgnitionStatus
+        value: RUN
+      - action: set_signal
+        target: VehicleOperatingMode
+        value: IN_USE
+      - action: wait_for_signal
+        target: SecurementState
+        value: DRIVE_READY
+  Driving:
+    description: "Vehicle in drive mode with non-zero speed"
+    steps:
+      - action: set_signal
+        target: VehicleIgnitionStatus
+        value: RUN
+      - action: set_signal
+        target: GearCommand
+        value: D
+      - action: set_signal
+        target: VehicleOperatingMode
+        value: DRIVING
+      - action: set_signal
+        target: VehicleSpeedTarget
+        value: 30
+      - action: assert_signal_range
+        target: VehicleSpeed
+        value:
+          min: 10
+          max: 50
+  Charging:
+    description: "Vehicle connected to EVSE and charging"
+    steps:
+      - action: set_signal
+        target: VehicleOperatingMode
+        value: CHARGING
+      - action: set_signal
+        target: ChargingState
+        value: CONNECTED
+      - action: assert_signal
+        target: ChargingActivity
+        value: ACTIVE
+  HVACBase:
+    description: "HVAC baseline configuration"
+    steps:
+      - action: set_signal
+        target: VehicleOperatingMode
+        value: HVAC_BASE
+      - action: set_signal
+        target: HVACMode
+        value: AUTO
+      - action: set_signal
+        target: HVACTemperature
+        value: 21
+      - action: assert_signal_in
+        target: DefrostStatus
+        value:
+          - OFF
+          - ON
+  LightingBase:
+    description: "Exterior lighting base configuration"
+    steps:
+      - action: set_signal
+        target: VehicleOperatingMode
+        value: LIGHTING_BASE
+      - action: set_signal
+        target: LowBeamCommand
+        value: AUTO
+      - action: wait_for_signal
+        target: LowBeamState
+        value: AUTO
+      - action: assert_signal
+        target: LightAvailabilityLowBeam
+        value: AVAILABLE
   VehicleAtRest:
     description: "Ensure vehicle is stationary with ignition on"
     sla:
@@ -8,12 +96,12 @@ preconditions:
       abort_on_fault: true
     steps:
       - action: set_signal
-        target: IgnitionState
-        value: ON
+        target: VehicleIgnitionStatus
+        value: RUN
       - action: wait_for_signal
         target: VehicleSpeed
         value: 0
     rollback:
       - action: set_signal
-        target: IgnitionState
+        target: VehicleIgnitionStatus
         value: OFF
